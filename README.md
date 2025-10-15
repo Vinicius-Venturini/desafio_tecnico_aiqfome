@@ -3,7 +3,7 @@ Essa API foi criada seguir as especifiações pedidas no desafio técnico para a
 A API foi desenvolvida em Python, utilizando o framework Django.
 
 ## Guia de instalação
-Para utilizar essa API, você precisará de ter o Docker instalado na sua máquina, que pode ser facilmente instalado no Windows, Linux ou MAC. Acessar [https://www.docker.com/](https://www.docker.com/) para seguir a instalação que irá melhor te servir.
+Para utilizar essa API, você precisará ter o Docker instalado na sua máquina, que pode ser facilmente instalado no Windows, Linux ou MAC. Acessar [https://www.docker.com/](https://www.docker.com/) para seguir a instalação que irá melhor te servir.
 Com o docker instalado, clone este repositório ou faça o download dele como um arquivo zip e, após ter os arquivos na sua máquina, entre na pasta do repositório e execute o seguinte comando
 
 ```bash
