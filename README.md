@@ -10,8 +10,8 @@ Com o docker instalado, clone este repositório ou faça o download dele como um
 docker compose up --build -d
 ```
 
-Com isso você já terá a API e todos os serviços necessários para o funcionamento dela funcionando, e você pode acessar ela em `http://localhost:8000`  
-Você pode acessar a documentação da API em `http://localhost:8000/docs`  
+Com isso você já terá a API e todos os serviços necessários para o funcionamento dela funcionando, e você pode acessar ela em `http://localhost:8000`.  
+Você pode acessar a documentação da API em `http://localhost:8000/docs`.  
 Existe o registro e autenticação de usuário, após fazer o registro e se autenticar nas rotas descritas na documentação, você deve usar esse token como um `Bearer Token` para realizar as requisições autenticadas.
 
 ## Decisões de projeto
