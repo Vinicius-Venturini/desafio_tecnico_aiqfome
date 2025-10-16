@@ -1,6 +1,7 @@
 django
 djangorestframework
 djangorestframework-simplejwt
+drf_spectacular
 psycopg2
 redis
 requests

@@ -5,15 +5,20 @@ from rest_framework_simplejwt.tokens import AccessToken
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.exceptions import NotFound, ValidationError
+from rest_framework.exceptions import NotFound
 from django.contrib.auth import authenticate
 from django.db.utils import IntegrityError
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 
 from core.services.client import update_client, favorite_product
 from core.models import Client
-from core.serializers.client import ClientSerializer, ClientDetailsSerializer, ClientCreateSerializer
+from core.serializers.client import ClientSerializer, ClientDetailsSerializer, ClientCreateSerializer, UpdateClientSerializer
 from core.serializers.product import FavoriteSerializer
+from core.serializers import docs
 
+@extend_schema(
+        summary='Registers a new client in the database'
+    )
 class ClientRegisterView(generics.CreateAPIView):
     serializer_class = ClientCreateSerializer
     permission_classes = [AllowAny]
@@ -21,6 +26,14 @@ class ClientRegisterView(generics.CreateAPIView):
     def get_queryset(self):
         return Client.objects.none()
 
+@extend_schema(
+        summary='Generates an authentication token',
+        responses={
+            200: docs.LoginResponseSerializer,
+            400: docs.ErrorResponse,
+            401: docs.ErrorResponse,
+        }
+    )
 class ClientLoginView(TokenObtainPairView):
     permission_classes = [AllowAny]
 
@@ -52,6 +65,30 @@ class ClientView(ViewSet):
             return [AllowAny()]
         return [IsAuthenticated()]
 
+    @extend_schema(
+        summary='Returns all clients',
+        parameters=[
+            OpenApiParameter(
+                name='page',
+                type=int,
+                location=OpenApiParameter.QUERY,
+                description='Set the page for client listing',
+                default=1,
+                required=False,
+            ),
+            OpenApiParameter(
+                name='size',
+                type=int,
+                location=OpenApiParameter.QUERY,
+                description='Set the amount of clients returned by page',
+                default=50,
+                required=False,
+            ),
+        ],
+        responses={
+            200: docs.AllClientsResponse
+        }
+    )
     def get_all_clients(self, request):
         page = int(request.GET.get('page', 1))
         if page < 1:
@@ -73,9 +110,25 @@ class ClientView(ViewSet):
             'page': page,
             'size': size,
             'total': total,
-            'data': serializer.data,
+            'clients': serializer.data,
         })
     
+    @extend_schema(
+        summary='Returns a specific client',
+        parameters=[
+            OpenApiParameter(
+                name='id',
+                type=int,
+                location=OpenApiParameter.PATH,
+                description='The client ID',
+                required=True,
+            ),
+        ],
+        responses={
+            200: docs.ClientResponse,
+            404: docs.ErrorResponse,
+        }
+    )
     def get_client(self, request, id):
         try:
             client = Client.objects.get(pk=id)
@@ -86,6 +139,26 @@ class ClientView(ViewSet):
 
         return Response({'client': serializer.data})
     
+    @extend_schema(
+        summary='Update a client data',
+        parameters=[
+            OpenApiParameter(
+                name='id',
+                type=int,
+                location=OpenApiParameter.PATH,
+                description='The client ID',
+                required=True,
+            ),
+        ],
+        request=UpdateClientSerializer,
+        responses={
+            200: docs.ClientResponse,
+            400: docs.ErrorResponse,
+            401: docs.ErrorResponse,
+            403: docs.ErrorResponse,
+            404: docs.ErrorResponse,
+        }
+    )
     def update_client(self, request, id):
         if request.user.pk != id:
             return Response({'detail': 'You don\'t have permission to execute this operation'}, status=status.HTTP_403_FORBIDDEN)
@@ -98,10 +171,28 @@ class ClientView(ViewSet):
         except ValueError as e:
             return Response({'detail': str(e)}, status=status.HTTP_400_BAD_REQUEST)
         
-        serializer = ClientSerializer(updated_client)
+        serializer = ClientDetailsSerializer(updated_client)
 
         return Response({'client': serializer.data})
     
+    @extend_schema(
+        summary='Remove a client',
+        parameters=[
+            OpenApiParameter(
+                name='id',
+                type=int,
+                location=OpenApiParameter.PATH,
+                description='The client ID',
+                required=True,
+            ),
+        ],
+        responses={
+            200: docs.ClientResponse,
+            401: docs.ErrorResponse,
+            403: docs.ErrorResponse,
+            404: docs.ErrorResponse,
+        }
+    )
     def delete_client(self, request, id):
         if request.user.pk != id:
             return Response({'detail': 'You don\'t have permission to execute this operation'}, status=status.HTTP_403_FORBIDDEN)
@@ -114,6 +205,26 @@ class ClientView(ViewSet):
 
         return Response({'client': client_data})
     
+    @extend_schema(
+        summary='Set a product as a client favorite',
+        parameters=[
+            OpenApiParameter(
+                name='id',
+                type=int,
+                location=OpenApiParameter.PATH,
+                description='The client ID',
+                required=True,
+            ),
+        ],
+        request=FavoriteSerializer,
+        responses={
+            200: docs.ClientResponse,
+            400: docs.ErrorResponse,
+            401: docs.ErrorResponse,
+            403: docs.ErrorResponse,
+            404: docs.ErrorResponse,
+        }
+    )
     def favorite_product(self, request, id):
         if request.user.pk != id:
             return Response({'detail': 'You don\'t have permission to execute this operation'}, status=status.HTTP_403_FORBIDDEN)

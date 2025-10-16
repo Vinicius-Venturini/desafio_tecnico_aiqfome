@@ -17,6 +17,7 @@ Including another URLconf
 from django.urls import path, include
 from django.http import JsonResponse
 from rest_framework import status
+from drf_spectacular.views import SpectacularSwaggerView, SpectacularAPIView
 
 def custom_404(request, exception):
     return JsonResponse({'detail': f'"{request.path}" not found'}, status=status.HTTP_404_NOT_FOUND)
@@ -25,6 +26,8 @@ def custom_500(request):
     return JsonResponse({'detail': 'Internal server error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 urlpatterns = [
+    path('schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
     path('', include('core.urls'))
 ]
 

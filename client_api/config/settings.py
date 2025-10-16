@@ -28,6 +28,8 @@ DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
+APPEND_SLASH = False
+
 
 # Application definition
 
@@ -35,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'rest_framework',
+    'drf_spectacular',
     'core',
 ]
 
@@ -47,6 +50,14 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
     ),
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Aiqfome API',
+    'DESCRIPTION': 'Favorite products API',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
 }
 
 SIMPLE_JWT = {
@@ -68,6 +79,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'config.middlewares.slash_middleware.SlashMiddleware'
 ]
 
 ROOT_URLCONF = 'config.urls'

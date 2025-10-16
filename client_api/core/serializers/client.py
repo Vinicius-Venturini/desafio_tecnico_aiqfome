@@ -27,3 +27,7 @@ class ClientCreateSerializer(serializers.ModelSerializer):
             **validated_data
         )
         return client
+
+class UpdateClientSerializer(serializers.Serializer):
+    name = serializers.CharField(required=False, allow_blank=False)
+    password = serializers.CharField(required=False, allow_blank=False)
